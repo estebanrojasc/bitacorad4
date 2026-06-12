@@ -26,6 +26,8 @@ export async function connectDB(): Promise<typeof mongoose> {
   if (!cache.promise) {
     cache.promise = mongoose.connect(env.mongoUri, {
       bufferCommands: false,
+      // Fuerza la base de datos aunque la URI no la incluya (evita usar "test").
+      dbName: env.mongoDbName,
     });
   }
 

@@ -20,6 +20,8 @@ const GB = 1024 * 1024 * 1024;
 
 export const env = {
   mongoUri: optional("MONGODB_URI") ?? "mongodb://127.0.0.1:27017/bitacora",
+  // Nombre de la base. Útil cuando la URI no lo incluye (Atlas suele omitirlo).
+  mongoDbName: optional("MONGODB_DB_NAME") ?? "bitacora",
   jwtSecret: optional("JWT_SECRET") ?? "dev-secret-cambia-esto-en-produccion",
 
   // Token para proteger el endpoint de diagnóstico (/api/health) en producción.
