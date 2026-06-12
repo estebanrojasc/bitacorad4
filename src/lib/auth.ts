@@ -8,10 +8,15 @@ const SESSION_DAYS = 30;
 
 const secretKey = new TextEncoder().encode(env.jwtSecret);
 
+export type TeacherRole = "teacher" | "admin";
+
 export type SessionPayload = {
   teacherId: string;
   name: string;
   email: string;
+  // Rol del docente. Las sesiones de tokens antiguos pueden no incluirlo;
+  // en ese caso se trata como "teacher" (sin privilegios de administrador).
+  role?: TeacherRole;
 };
 
 export async function hashPassword(password: string): Promise<string> {

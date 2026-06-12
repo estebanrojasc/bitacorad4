@@ -11,6 +11,15 @@ const TeacherSchema = new Schema(
       trim: true,
     },
     passwordHash: { type: String, required: true },
+    // Rol del usuario. "admin" puede ver y gestionar los datos de todos los
+    // docentes; "teacher" solo accede a sus propios estudiantes y bitácoras.
+    // Las cuentas admin se definen directamente en base de datos.
+    role: {
+      type: String,
+      enum: ["teacher", "admin"],
+      default: "teacher",
+      index: true,
+    },
   },
   { timestamps: true },
 );

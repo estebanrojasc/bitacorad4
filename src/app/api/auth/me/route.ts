@@ -9,6 +9,7 @@ export async function GET() {
       id: session.teacherId,
       name: session.name,
       email: session.email,
+      role: session.role === "admin" ? "admin" : "teacher",
     },
   });
 }

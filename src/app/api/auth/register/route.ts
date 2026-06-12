@@ -25,17 +25,30 @@ export async function POST(req: Request) {
     if (existing) throw new ApiError("Ese correo ya está registrado", 409);
 
     const passwordHash = await hashPassword(password);
-    const teacher = await TeacherModel.create({ name, email, passwordHash });
+    // El registro público siempre crea un docente normal. Las cuentas
+    // administradoras se asignan manualmente en base de datos.
+    const teacher = await TeacherModel.create({
+      name,
+      email,
+      passwordHash,
+      role: "teacher",
+    });
 
     const token = await createSessionToken({
       teacherId: teacher._id.toString(),
       name: teacher.name,
       email: teacher.email,
+      role: "teacher",
     });
     await setSessionCookie(token);
 
     return ok({
-      teacher: { id: teacher._id, name: teacher.name, email: teacher.email },
+      teacher: {
+        id: teacher._id,
+        name: teacher.name,
+        email: teacher.email,
+        role: "teacher",
+      },
     });
   } catch (error) {
     if (error instanceof z.ZodError) {

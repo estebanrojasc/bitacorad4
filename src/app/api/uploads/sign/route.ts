@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { connectDB } from "@/lib/db";
 import { StudentModel } from "@/models/Student";
-import { ApiError, fail, ok, requireSession } from "@/lib/api";
+import { ApiError, fail, ok, requireSession, teacherScope } from "@/lib/api";
 import { assertCanUpload } from "@/lib/quota";
 import { buildRecordingKey, createUploadUrl } from "@/lib/storage";
 
@@ -21,14 +21,19 @@ export async function POST(req: Request) {
     await connectDB();
     const student = await StudentModel.findOne({
       _id: studentId,
-      teacherId: session.teacherId,
+      ...teacherScope(session),
     }).lean();
     if (!student) throw new ApiError("Estudiante no encontrado", 404);
 
     // Guardián de cuotas: bloquea si superaría el free tier.
     await assertCanUpload(sizeBytes);
 
-    const storageKey = buildRecordingKey(session.teacherId, studentId, ext);
+    // La clave se construye con el docente dueño del estudiante (no con quien
+    // sube), para que los archivos de un admin queden bajo el docente correcto.
+    const ownerTeacherId = (
+      student as unknown as { teacherId: { toString(): string } }
+    ).teacherId.toString();
+    const storageKey = buildRecordingKey(ownerTeacherId, studentId, ext);
     const uploadUrl = await createUploadUrl(storageKey, contentType);
 
     return ok({ uploadUrl, storageKey });

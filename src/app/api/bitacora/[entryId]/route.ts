@@ -1,6 +1,6 @@
 import { connectDB } from "@/lib/db";
 import { BitacoraEntryModel } from "@/models/BitacoraEntry";
-import { ApiError, fail, ok, requireSession } from "@/lib/api";
+import { ApiError, fail, ok, requireSession, teacherScope } from "@/lib/api";
 import { createPlaybackUrl } from "@/lib/storage";
 import { isStorageConfigured } from "@/lib/env";
 
@@ -14,7 +14,7 @@ export async function GET(_req: Request, { params }: Ctx) {
     await connectDB();
     const entry = await BitacoraEntryModel.findOne({
       _id: entryId,
-      teacherId: session.teacherId,
+      ...teacherScope(session),
     }).lean();
     if (!entry) throw new ApiError("Bitácora no encontrada", 404);
 

@@ -26,15 +26,22 @@ export async function POST(req: Request) {
     const valid = await verifyPassword(password, teacher.passwordHash);
     if (!valid) throw new ApiError("Correo o contraseña incorrectos", 401);
 
+    const role = teacher.role === "admin" ? "admin" : "teacher";
     const token = await createSessionToken({
       teacherId: teacher._id.toString(),
       name: teacher.name,
       email: teacher.email,
+      role,
     });
     await setSessionCookie(token);
 
     return ok({
-      teacher: { id: teacher._id, name: teacher.name, email: teacher.email },
+      teacher: {
+        id: teacher._id,
+        name: teacher.name,
+        email: teacher.email,
+        role,
+      },
     });
   } catch (error) {
     if (error instanceof z.ZodError) {

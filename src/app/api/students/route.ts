@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { connectDB } from "@/lib/db";
 import { StudentModel } from "@/models/Student";
-import { ApiError, fail, ok, requireSession } from "@/lib/api";
+import { ApiError, fail, ok, requireSession, teacherScope } from "@/lib/api";
 
 const AVATAR_COLORS = [
   "#6366f1",
@@ -17,7 +17,8 @@ export async function GET() {
   try {
     const session = await requireSession();
     await connectDB();
-    const students = await StudentModel.find({ teacherId: session.teacherId })
+    // Un admin ve todos los estudiantes; un docente solo los suyos.
+    const students = await StudentModel.find(teacherScope(session))
       .sort({ name: 1 })
       .lean();
     return ok({ students });

@@ -13,6 +13,13 @@ function formatDate(iso: string) {
   });
 }
 
+function formatTime(iso: string) {
+  return new Date(iso).toLocaleTimeString("es", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 export function Timeline({
   entries,
   onTranscribe,
@@ -139,6 +146,11 @@ function RecordingRow({
 }) {
   return (
     <div className="rounded-2xl bg-brand-50/60 p-3">
+      {rec.createdAt && (
+        <p className="mb-2 text-xs font-semibold text-ink/50">
+          🕐 Grabado a las {formatTime(rec.createdAt)}
+        </p>
+      )}
       <div className="flex items-center gap-3">
         {rec.playbackUrl ? (
           <audio controls src={rec.playbackUrl} className="h-9 flex-1" />

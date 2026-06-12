@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { connectDB } from "@/lib/db";
 import { BitacoraEntryModel } from "@/models/BitacoraEntry";
-import { ApiError, fail, ok, requireSession } from "@/lib/api";
+import { ApiError, fail, ok, requireSession, teacherScope } from "@/lib/api";
 import { addUploadUsage } from "@/lib/quota";
 
 const schema = z.object({
@@ -24,7 +24,7 @@ export async function POST(req: Request, { params }: Ctx) {
     await connectDB();
     const entry = await BitacoraEntryModel.findOne({
       _id: entryId,
-      teacherId: session.teacherId,
+      ...teacherScope(session),
     });
     if (!entry) throw new ApiError("Bitácora no encontrada", 404);
 

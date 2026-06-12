@@ -1,7 +1,7 @@
 import { connectDB } from "@/lib/db";
 import { BitacoraEntryModel } from "@/models/BitacoraEntry";
 import { StudentModel } from "@/models/Student";
-import { ApiError, fail, ok, requireSession } from "@/lib/api";
+import { ApiError, fail, ok, requireSession, teacherScope } from "@/lib/api";
 import { generateReport } from "@/lib/gemini";
 import { addGeminiUsage, assertCanGenerateReport } from "@/lib/quota";
 import { isGeminiConfigured } from "@/lib/env";
@@ -20,7 +20,7 @@ export async function POST(_req: Request, { params }: Ctx) {
     await connectDB();
     const entry = await BitacoraEntryModel.findOne({
       _id: entryId,
-      teacherId: session.teacherId,
+      ...teacherScope(session),
     });
     if (!entry) throw new ApiError("Bitácora no encontrada", 404);
 

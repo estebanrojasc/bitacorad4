@@ -1,6 +1,6 @@
 import { connectDB } from "@/lib/db";
 import { BitacoraEntryModel } from "@/models/BitacoraEntry";
-import { ApiError, fail, ok, requireSession } from "@/lib/api";
+import { ApiError, fail, ok, requireSession, teacherScope } from "@/lib/api";
 import { createPlaybackUrl } from "@/lib/storage";
 import { transcribeWithQwen } from "@/lib/qwen";
 import { transcribeWithGemini } from "@/lib/gemini";
@@ -22,7 +22,7 @@ export async function POST(_req: Request, { params }: Ctx) {
     await connectDB();
     const entry = await BitacoraEntryModel.findOne({
       _id: entryId,
-      teacherId: session.teacherId,
+      ...teacherScope(session),
     });
     if (!entry) throw new ApiError("Bitácora no encontrada", 404);
 
@@ -81,7 +81,7 @@ export async function POST(_req: Request, { params }: Ctx) {
       await connectDB();
       const entry = await BitacoraEntryModel.findOne({
         _id: entryId,
-        teacherId: session.teacherId,
+        ...teacherScope(session),
       });
       const recording = entry?.recordings.id(recordingId);
       if (recording) {
